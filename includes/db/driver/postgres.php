@@ -15,19 +15,12 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-include_once($phpbb_root_path . 'includes/db/dbal.' . $phpEx);
-
-if (!class_exists('phpbb_error_collector'))
-{
-	include($phpbb_root_path . 'includes/error_collector.' . $phpEx);
-}
-
 /**
 * PostgreSQL Database Abstraction Layer
 * Minimum Requirement is Version 7.3+
 * @package dbal
 */
-class dbal_postgres extends dbal
+class phpbb_db_driver_postgres extends phpbb_db_driver
 {
 	var $last_query_text = '';
 	var $connect_error = '';
@@ -194,7 +187,7 @@ class dbal_postgres extends dbal
 			global $cache;
 
 			// EXPLAIN only in extra debug mode
-			if (defined('DEBUG_EXTRA'))
+			if (defined('DEBUG'))
 			{
 				$this->sql_report('start', $query);
 			}
@@ -210,7 +203,7 @@ class dbal_postgres extends dbal
 					$this->sql_error($query);
 				}
 
-				if (defined('DEBUG_EXTRA'))
+				if (defined('DEBUG'))
 				{
 					$this->sql_report('stop', $query);
 				}
@@ -225,7 +218,7 @@ class dbal_postgres extends dbal
 					$this->open_queries[(int) $this->query_result] = $this->query_result;
 				}
 			}
-			else if (defined('DEBUG_EXTRA'))
+			else if (defined('DEBUG'))
 			{
 				$this->sql_report('fromcache', $query);
 			}

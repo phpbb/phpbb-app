@@ -15,19 +15,12 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-include_once($phpbb_root_path . 'includes/db/dbal.' . $phpEx);
-
-if (!class_exists('phpbb_error_collector'))
-{
-	include($phpbb_root_path . 'includes/error_collector.' . $phpEx);
-}
-
 /**
 * PostgreSQL Database Abstraction Layer
 * Minimum Requirement is Version 7.3+
 * @package dbal
 */
-class dbal_postgres extends dbal
+class phpbb_db_driver_postgres extends phpbb_db_driver
 {
 	var $last_query_text = '';
 	var $connect_error = '';
@@ -200,7 +193,7 @@ class dbal_postgres extends dbal
 			}
 
 			$this->last_query_text = $query;
-			$this->query_result = ($cache_ttl) ? $cache->sql_load($query) : false;
+			$this->query_result = ($cache && $cache_ttl) ? $cache->sql_load($query) : false;
 			$this->sql_add_num_queries($this->query_result);
 
 			if ($this->query_result === false)
@@ -215,10 +208,10 @@ class dbal_postgres extends dbal
 					$this->sql_report('stop', $query);
 				}
 
-				if ($cache_ttl)
+				if ($cache && $cache_ttl)
 				{
 					$this->open_queries[(int) $this->query_result] = $this->query_result;
-					$this->query_result = $cache->sql_save($query, $this->query_result, $cache_ttl);
+					$this->query_result = $cache->sql_save($this, $query, $this->query_result, $cache_ttl);
 				}
 				else if (strpos($query, 'SELECT') === 0 && $this->query_result)
 				{
@@ -285,7 +278,7 @@ class dbal_postgres extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_fetchrow($query_id);
 		}
@@ -306,7 +299,7 @@ class dbal_postgres extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_rowseek($rownum, $query_id);
 		}
@@ -355,7 +348,7 @@ class dbal_postgres extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_freeresult($query_id);
 		}

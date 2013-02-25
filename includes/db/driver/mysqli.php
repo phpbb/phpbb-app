@@ -15,23 +15,28 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-include_once($phpbb_root_path . 'includes/db/dbal.' . $phpEx);
-
 /**
 * MySQLi Database Abstraction Layer
 * mysqli-extension has to be compiled with:
 * MySQL 4.1+ or MySQL 5.0+
 * @package dbal
 */
-class dbal_mysqli extends dbal
+class phpbb_db_driver_mysqli extends phpbb_db_driver
 {
 	var $multi_insert = true;
+	var $connect_error = '';
 
 	/**
 	* Connect to server
 	*/
 	function sql_connect($sqlserver, $sqluser, $sqlpassword, $database, $port = false, $persistency = false , $new_link = false)
 	{
+		if (!function_exists('mysqli_connect'))
+		{
+			$this->connect_error = 'mysqli_connect function does not exist, is mysqli extension installed?';
+			return $this->sql_error('');
+		}
+
 		// Mysqli extension supports persistent connection since PHP 5.3.0
 		$this->persistency = (version_compare(PHP_VERSION, '5.3.0', '>=')) ? $persistency : false;
 		$this->user = $sqluser;
@@ -179,7 +184,7 @@ class dbal_mysqli extends dbal
 				$this->sql_report('start', $query);
 			}
 
-			$this->query_result = ($cache_ttl) ? $cache->sql_load($query) : false;
+			$this->query_result = ($cache && $cache_ttl) ? $cache->sql_load($query) : false;
 			$this->sql_add_num_queries($this->query_result);
 
 			if ($this->query_result === false)
@@ -194,9 +199,9 @@ class dbal_mysqli extends dbal
 					$this->sql_report('stop', $query);
 				}
 
-				if ($cache_ttl)
+				if ($cache && $cache_ttl)
 				{
-					$this->query_result = $cache->sql_save($query, $this->query_result, $cache_ttl);
+					$this->query_result = $cache->sql_save($this, $query, $this->query_result, $cache_ttl);
 				}
 			}
 			else if (defined('DEBUG'))
@@ -251,7 +256,7 @@ class dbal_mysqli extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if (!is_object($query_id) && $cache->sql_exists($query_id))
+		if ($cache && !is_object($query_id) && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_fetchrow($query_id);
 		}
@@ -278,7 +283,7 @@ class dbal_mysqli extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if (!is_object($query_id) && $cache->sql_exists($query_id))
+		if ($cache && !is_object($query_id) && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_rowseek($rownum, $query_id);
 		}
@@ -306,7 +311,7 @@ class dbal_mysqli extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if (!is_object($query_id) && $cache->sql_exists($query_id))
+		if ($cache && !is_object($query_id) && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_freeresult($query_id);
 		}
@@ -423,18 +428,29 @@ class dbal_mysqli extends dbal
 	*/
 	function _sql_error()
 	{
-		if (!$this->db_connect_id)
+		if ($this->db_connect_id)
 		{
-			return array(
+			$error = array(
+				'message'	=> @mysqli_error($this->db_connect_id),
+				'code'		=> @mysqli_errno($this->db_connect_id)
+			);
+		}
+		else if (function_exists('mysqli_connect_error'))
+		{
+			$error = array(
 				'message'	=> @mysqli_connect_error(),
-				'code'		=> @mysqli_connect_errno()
+				'code'		=> @mysqli_connect_errno(),
+			);
+		}
+		else
+		{
+			$error = array(
+				'message'	=> $this->connect_error,
+				'code'		=> '',
 			);
 		}
 
-		return array(
-			'message'	=> @mysqli_error($this->db_connect_id),
-			'code'		=> @mysqli_errno($this->db_connect_id)
-		);
+		return $error;
 	}
 
 	/**

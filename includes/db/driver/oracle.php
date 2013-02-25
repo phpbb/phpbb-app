@@ -15,15 +15,14 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-include_once($phpbb_root_path . 'includes/db/dbal.' . $phpEx);
-
 /**
 * Oracle Database Abstraction Layer
 * @package dbal
 */
-class dbal_oracle extends dbal
+class phpbb_db_driver_oracle extends phpbb_db_driver
 {
 	var $last_query_text = '';
+	var $connect_error = '';
 
 	/**
 	* Connect to server
@@ -47,7 +46,33 @@ class dbal_oracle extends dbal
 			$connect = $sqlserver . (($port) ? ':' . $port : '') . '/' . $database;
 		}
 
-		$this->db_connect_id = ($new_link) ? @ocinlogon($this->user, $sqlpassword, $connect, 'UTF8') : (($this->persistency) ? @ociplogon($this->user, $sqlpassword, $connect, 'UTF8') : @ocilogon($this->user, $sqlpassword, $connect, 'UTF8'));
+		if ($new_link)
+		{
+			if (!function_exists('ocinlogon'))
+			{
+				$this->connect_error = 'ocinlogon function does not exist, is oci extension installed?';
+				return $this->sql_error('');
+			}
+			$this->db_connect_id = @ocinlogon($this->user, $sqlpassword, $connect, 'UTF8');
+		}
+		else if ($this->persistency)
+		{
+			if (!function_exists('ociplogon'))
+			{
+				$this->connect_error = 'ociplogon function does not exist, is oci extension installed?';
+				return $this->sql_error('');
+			}
+			$this->db_connect_id = @ociplogon($this->user, $sqlpassword, $connect, 'UTF8');
+		}
+		else
+		{
+			if (!function_exists('ocilogon'))
+			{
+				$this->connect_error = 'ocilogon function does not exist, is oci extension installed?';
+				return $this->sql_error('');
+			}
+			$this->db_connect_id = @ocilogon($this->user, $sqlpassword, $connect, 'UTF8');
+		}
 
 		return ($this->db_connect_id) ? $this->db_connect_id : $this->sql_error('');
 	}
@@ -242,7 +267,7 @@ class dbal_oracle extends dbal
 			}
 
 			$this->last_query_text = $query;
-			$this->query_result = ($cache_ttl) ? $cache->sql_load($query) : false;
+			$this->query_result = ($cache && $cache_ttl) ? $cache->sql_load($query) : false;
 			$this->sql_add_num_queries($this->query_result);
 
 			if ($this->query_result === false)
@@ -418,10 +443,10 @@ class dbal_oracle extends dbal
 					$this->sql_report('stop', $query);
 				}
 
-				if ($cache_ttl)
+				if ($cache && $cache_ttl)
 				{
 					$this->open_queries[(int) $this->query_result] = $this->query_result;
-					$this->query_result = $cache->sql_save($query, $this->query_result, $cache_ttl);
+					$this->query_result = $cache->sql_save($this, $query, $this->query_result, $cache_ttl);
 				}
 				else if (strpos($query, 'SELECT') === 0 && $this->query_result)
 				{
@@ -473,7 +498,7 @@ class dbal_oracle extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_fetchrow($query_id);
 		}
@@ -525,7 +550,7 @@ class dbal_oracle extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_rowseek($rownum, $query_id);
 		}
@@ -594,7 +619,7 @@ class dbal_oracle extends dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_freeresult($query_id);
 		}
@@ -646,17 +671,27 @@ class dbal_oracle extends dbal
 	*/
 	function _sql_error()
 	{
-		$error = @ocierror();
-		$error = (!$error) ? @ocierror($this->query_result) : $error;
-		$error = (!$error) ? @ocierror($this->db_connect_id) : $error;
-
-		if ($error)
+		if (function_exists('ocierror'))
 		{
-			$this->last_error_result = $error;
+			$error = @ocierror();
+			$error = (!$error) ? @ocierror($this->query_result) : $error;
+			$error = (!$error) ? @ocierror($this->db_connect_id) : $error;
+
+			if ($error)
+			{
+				$this->last_error_result = $error;
+			}
+			else
+			{
+				$error = (isset($this->last_error_result) && $this->last_error_result) ? $this->last_error_result : array();
+			}
 		}
 		else
 		{
-			$error = (isset($this->last_error_result) && $this->last_error_result) ? $this->last_error_result : array();
+			$error = array(
+				'message'	=> $this->connect_error,
+				'code'		=> '',
+			);
 		}
 
 		return $error;

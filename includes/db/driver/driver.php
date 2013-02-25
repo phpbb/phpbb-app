@@ -19,7 +19,7 @@ if (!defined('IN_PHPBB'))
 * Database Abstraction Layer
 * @package dbal
 */
-class dbal
+class phpbb_db_driver
 {
 	var $db_connect_id;
 	var $query_result;
@@ -72,17 +72,17 @@ class dbal
 	/**
 	* Constructor
 	*/
-	function dbal()
+	function __construct()
 	{
 		$this->num_queries = array(
-			'cached'		=> 0,
-			'normal'		=> 0,
-			'total'			=> 0,
+			'cached'	=> 0,
+			'normal'	=> 0,
+			'total'		=> 0,
 		);
 
 		// Fill default sql layer based on the class being called.
 		// This can be changed by the specified layer itself later if needed.
-		$this->sql_layer = substr(get_class($this), 5);
+		$this->sql_layer = substr(get_class($this), strlen('phpbb_db_driver_'));
 
 		// Do not change this please! This variable is used to easy the use of it - and is hardcoded.
 		$this->any_char = chr(0) . '%';
@@ -206,7 +206,7 @@ class dbal
 			$query_id = $this->query_result;
 		}
 
-		if ($cache->sql_exists($query_id))
+		if ($cache && $cache->sql_exists($query_id))
 		{
 			return $cache->sql_rowseek($rownum, $query_id);
 		}
@@ -256,7 +256,7 @@ class dbal
 				$this->sql_rowseek($rownum, $query_id);
 			}
 
-			if (!is_object($query_id) && $cache->sql_exists($query_id))
+			if ($cache && !is_object($query_id) && $cache->sql_exists($query_id))
 			{
 				return $cache->sql_fetchfield($query_id, $field);
 			}
@@ -822,7 +822,7 @@ class dbal
 	*/
 	function sql_report($mode, $query = '')
 	{
-		global $cache, $starttime, $phpbb_root_path, $user;
+		global $cache, $starttime, $phpbb_root_path, $phpbb_admin_path, $user;
 		global $request;
 
 		if (is_object($request) && !$request->variable('explain', false))
@@ -852,7 +852,7 @@ class dbal
 					<head>
 						<meta charset="utf-8">
 						<title>SQL Report</title>
-						<link href="' . $phpbb_root_path . 'adm/style/admin.css" rel="stylesheet" type="text/css" media="screen" />
+						<link href="' . htmlspecialchars($phpbb_admin_path) . 'style/admin.css" rel="stylesheet" type="text/css" media="screen" />
 					</head>
 					<body id="errorpage">
 					<div id="wrap">
@@ -1042,8 +1042,3 @@ class dbal
 		return $rows_total;
 	}
 }
-
-/**
-* This variable holds the class name to use later
-*/
-$sql_db = (!empty($dbms)) ? 'dbal_' . basename($dbms) : 'dbal';

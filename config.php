@@ -25,3 +25,9 @@ if (getenv('PHPBB_DEBUG') === 'true') {
 if (getenv('PHPBB_DEBUG_CONTAINER') === 'true') {
 	@define('DEBUG_CONTAINER', true);
 }
+
+if (is_null(getenv('PHPBB_ENVIRONMENT'))) {
+	@define('PHPBB_ENVIRONMENT', 'production');
+} else {
+	@define('PHPBB_ENVIRONMENT', getenv('PHPBB_ENVIRONMENT'));
+}

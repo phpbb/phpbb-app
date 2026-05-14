@@ -369,7 +369,7 @@ function download_allowed()
 		$server_name = $config['server_name'];
 	}
 
-	if (preg_match('#^.*?' . preg_quote($server_name, '#') . '.*?$#i', $hostname))
+	if (preg_match('#(?:^|\\.)' . preg_quote($server_name, '#') . '$#i', $hostname))
 	{
 		$allowed = true;
 	}

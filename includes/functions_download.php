@@ -338,7 +338,7 @@ function download_allowed()
 	// Split URL into domain and script part
 	$url = @parse_url($url);
 
-	if ($url === false)
+	if ($url === false || !isset($url['host']))
 	{
 		return ($config['secure_allow_empty_referer']) ? true : false;
 	}

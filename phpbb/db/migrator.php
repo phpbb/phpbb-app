@@ -551,7 +551,7 @@ class migrator
 				$state['migration_data_state']['_total_time'] : 0.0;
 			$elapsed_time = microtime(true);
 
-			$steps = $migration->revert_data() ?: $this->helper->reverse_update_data($migration->update_data());
+			$steps = array_merge($this->helper->reverse_update_data($migration->update_data()), $migration->revert_data());
 			$result = $this->process_data_step($steps, $state['migration_data_state']);
 
 			$elapsed_time = microtime(true) - $elapsed_time;

@@ -28,15 +28,16 @@ class defineparser extends \Twig\TokenParser\AbstractTokenParser
 	{
 		$lineno = $token->getLine();
 		$stream = $this->parser->getStream();
-		$name = $this->parser->getExpressionParser()->parseExpression();
+
+		$nameToken = $stream->expect(\Twig\Token::NAME_TYPE);
+		$name = new \Twig\Node\Expression\Variable\ContextVariable($nameToken->getValue(), $nameToken->getLine());
 
 		$capture = false;
-		if ($stream->test(\Twig\Token::OPERATOR_TYPE, '='))
+		if ($stream->nextIf(\Twig\Token::OPERATOR_TYPE, '='))
 		{
-			$stream->next();
-			$value = $this->parser->getExpressionParser()->parseExpression();
+			$value = $this->parser->parseExpression();
 
-			if ($value instanceof \Twig\Node\Expression\NameExpression)
+			if ($value instanceof \Twig\Node\Expression\Variable\ContextVariable)
 			{
 				// This would happen if someone improperly formed their DEFINE syntax
 				// e.g. <!-- DEFINE $VAR = foo -->

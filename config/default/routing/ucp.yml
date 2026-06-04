@@ -3,8 +3,8 @@ phpbb_ucp_delete_cookies_controller:
     defaults: { _controller: phpbb.ucp.controller.delete_cookies:handle }
 
 phpbb_ucp_oauth_link_controller:
-    path: /oauth_link
-    defaults: { _controller: phpbb.ucp.controller.oauth_link:handle }
+    path: /oauth/link
+    defaults: { _controller: phpbb.ucp.controller.oauth:link }
 
 phpbb_ucp_reset_password_controller:
     path: /reset_password

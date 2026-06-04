@@ -87,7 +87,7 @@ class ucp_auth_link
 			}
 		}
 
-		// Redirect to new oauth_link controller on link requests
+		// Redirect to new oauth_ controller on link requests
 		if ($request->variable('link', false))
 		{
 			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller');

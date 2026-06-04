@@ -18,7 +18,7 @@ use phpbb\exception\http_exception;
 use phpbb\request\request_interface;
 use Symfony\Component\HttpFoundation\Response;
 
-class oauth_link
+class oauth
 {
 	/** @var provider_collection Auth provider collection */
 	protected $auth_collection;
@@ -32,6 +32,14 @@ class oauth_link
 	/** @var string PHP extension */
 	protected $php_ext;
 
+	/**
+	 * Constructor for oauth controller
+	 *
+	 * @param provider_collection $auth_collection
+	 * @param request_interface $request
+	 * @param string $phpbb_root_path
+	 * @param string $php_ext
+	 */
 	public function __construct(provider_collection $auth_collection, request_interface $request,
 						string $phpbb_root_path, string $php_ext)
 	{
@@ -41,19 +49,23 @@ class oauth_link
 		$this->php_ext = $php_ext;
 	}
 
-	public function handle()
+	/**
+	 * Handle linking of accounts via oauth
+	 *
+	 * @return void
+	 */
+	public function link()
 	{
 		$auth_provider = $this->auth_collection->get_provider();
 
-		// Check if auth provider support linking
+		// Check if auth provider supports linking
 		$provider_data = $auth_provider->get_auth_link_data();
 		if ($provider_data === null)
 		{
 			throw new http_exception(Response::HTTP_UNAUTHORIZED, 'UCP_AUTH_LINK_NOT_SUPPORTED');
 		}
 
-		// In some cases, a request to an external server may be required. In
-		// these cases, the GET parameter 'link' should exist and should be true
+		// Link account if link is signalled, otherwise redirect to index
 		if ($this->request->variable('link', false))
 		{
 			// In this case the link data should only be populated with the

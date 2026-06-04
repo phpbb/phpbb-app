@@ -63,7 +63,7 @@ abstract class base implements provider_interface
 	*/
 	public function get_auth_link_data($user_id = 0)
 	{
-		return;
+		return null;
 	}
 
 	/**

@@ -2,6 +2,10 @@ phpbb_ucp_delete_cookies_controller:
     path: /delete_cookies
     defaults: { _controller: phpbb.ucp.controller.delete_cookies:handle }
 
+phpbb_ucp_oauth_link_controller:
+    path: /oauth_link
+    defaults: { _controller: phpbb.ucp.controller.oauth_link:handle }
+
 phpbb_ucp_reset_password_controller:
     path: /reset_password
     defaults: { _controller: phpbb.ucp.controller.reset_password:reset }

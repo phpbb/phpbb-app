@@ -87,18 +87,10 @@ class ucp_auth_link
 			}
 		}
 
-		// In some cases, a request to an external server may be required. In
-		// these cases, the GET parameter 'link' should exist and should be true
+		// Redirect to new oauth_link controller on link requests
 		if ($request->variable('link', false))
 		{
-			// In this case the link data should only be populated with the
-			// link_method as the provider dictates how data is returned to it.
-			$link_data = array('link_method' => 'auth_link');
-
-			$error[] = $auth_provider->link_account($link_data);
-
-			// Template data may have changed, get new data
-			$provider_data = $auth_provider->get_auth_link_data();
+			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller');
 		}
 
 		if (isset($provider_data['VARS']))

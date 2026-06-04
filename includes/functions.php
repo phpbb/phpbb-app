@@ -1823,6 +1823,33 @@ function redirect($url, $return = false, $disable_cd_check = false)
 }
 
 /**
+ * Redirect to controller
+ *
+ * @param string $controller_name
+ * @return void
+ * @throws Exception If errors are encountered while trying to redirect, e.g. invalid data
+ */
+function phpbb_redirect_to_controller(string $controller_name)
+{
+	global $request, $phpbb_container;
+
+	$controller_helper = $phpbb_container->get('controller.helper');
+	/* @var \Symfony\Component\HttpKernel\HttpKernel $http_kernel */
+	$http_kernel = $phpbb_container->get('http_kernel');
+	/* @var \phpbb\symfony_request $symfony_request */
+	$symfony_request = $phpbb_container->get('symfony_request');
+
+	$get_params_array = $request->get_super_global(\phpbb\request\request_interface::GET);
+	$response = new \Symfony\Component\HttpFoundation\RedirectResponse(
+		$controller_helper->route($controller_name, $get_params_array, false),
+		\Symfony\Component\HttpFoundation\Response::HTTP_MOVED_PERMANENTLY
+	);
+	$response->send();
+	$http_kernel->terminate($symfony_request, $response);
+	exit();
+}
+
+/**
  * Returns the install redirect path for phpBB.
  *
  * @param string $phpbb_root_path The root path of the phpBB installation.

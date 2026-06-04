@@ -98,8 +98,7 @@ switch ($mode)
 			redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
 		}
 
-		$module->load('ucp', 'login_link');
-		$module->display($user->lang['UCP_LOGIN_LINK']);
+		phpbb_redirect_to_controller('phpbb_ucp_oauth_login_controller');
 	break;
 
 	case 'logout':

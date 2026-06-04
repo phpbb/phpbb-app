@@ -36,6 +36,12 @@ class ucp_auth_link
 	{
 		global $request, $template, $phpbb_container, $user;
 
+		// Redirect to new oauth_ controller on link requests
+		if ($request->variable('link', false))
+		{
+			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller');
+		}
+
 		$error = array();
 
 		/* @var $provider_collection \phpbb\auth\provider_collection */
@@ -85,12 +91,6 @@ class ucp_auth_link
 				// Template data may have changed, get new data
 				$provider_data = $auth_provider->get_auth_link_data();
 			}
-		}
-
-		// Redirect to new oauth_ controller on link requests
-		if ($request->variable('link', false))
-		{
-			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller');
 		}
 
 		if (isset($provider_data['VARS']))

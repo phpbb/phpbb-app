@@ -22,6 +22,7 @@ use OAuth\OAuth2\Service\AbstractService as OAuth2Service;
 use phpbb\auth\provider\base;
 use phpbb\auth\provider\db;
 use phpbb\auth\provider\oauth\service\exception;
+use phpbb\auth\provider\oauth\service\service_interface;
 use phpbb\config\config;
 use phpbb\db\driver\driver_interface;
 use phpbb\di\service_collection;
@@ -218,7 +219,7 @@ class oauth extends base
 				'oauth_provider_id'	=> (string) $unique_id
 			];
 
-			$sql = 'SELECT user_id 
+			$sql = 'SELECT user_id
 				FROM ' . $this->oauth_account_table . '
 				WHERE ' . $this->db->sql_build_array('SELECT', $data);
 			$result = $this->db->sql_query($sql);
@@ -585,12 +586,14 @@ class oauth extends base
 			return $e->getMessage();
 		}
 
-		$this->service_providers[$service_name]->set_external_service_provider($service);
+		/** @var service_interface $service_provider */
+		$service_provider = $this->service_providers[$service_name];
+		$service_provider->set_external_service_provider($service);
 
 		try
 		{
 			// The user has already authenticated successfully, request to authenticate again
-			$unique_id = $this->service_providers[$service_name]->perform_token_auth();
+			$unique_id = $service_provider->perform_token_auth();
 		}
 		catch (exception $e)
 		{

@@ -14,7 +14,14 @@ services:
         class: phpbb\ucp\controller\oauth
         arguments:
             - '@auth.provider_collection'
+            - '@captcha.factory'
+            - '@config'
+            - '@dispatcher'
+            - '@controller.helper'
+            - '@language'
             - '@request'
+            - '@template'
+            - '@user'
             - '%core.root_path%'
             - '%core.php_ext%'
 

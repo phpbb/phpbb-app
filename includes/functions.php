@@ -1827,7 +1827,6 @@ function redirect($url, $return = false, $disable_cd_check = false)
  *
  * @param string $controller_name
  * @return void
- * @throws Exception If errors are encountered while trying to redirect, e.g. invalid data
  */
 function phpbb_redirect_to_controller(string $controller_name)
 {

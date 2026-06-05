@@ -39,7 +39,21 @@ class ucp_auth_link
 		// Redirect to new oauth_ controller on link requests
 		if ($request->variable('link', false))
 		{
-			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller');
+			$url_params = [
+				'link'			=> $request->variable('link', false),
+				'oauth_service'	=> $request->variable('oauth_service', ''),
+			];
+
+			if ($request->is_set('code'))
+			{
+				$url_params += [
+					'code'			=> $request->variable('code', ''),
+					'state'			=> $request->variable('state', ''),
+					'scope'			=> $request->variable('scope', ''),
+				];
+			}
+
+			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller', $url_params);
 		}
 
 		$error = array();

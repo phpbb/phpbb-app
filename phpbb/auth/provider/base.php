@@ -87,7 +87,7 @@ abstract class base implements provider_interface
 	*/
 	public function login_link_has_necessary_data(array $login_link_data)
 	{
-		return;
+		return 'LOGIN_LINK_MISSING_DATA';
 	}
 
 	/**

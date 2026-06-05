@@ -24,12 +24,14 @@ use phpbb\auth\provider\db;
 use phpbb\auth\provider\oauth\service\exception;
 use phpbb\auth\provider\oauth\service\service_interface;
 use phpbb\config\config;
+use phpbb\controller\helper as controller_helper;
 use phpbb\db\driver\driver_interface;
 use phpbb\di\service_collection;
 use phpbb\event\dispatcher;
 use phpbb\language\language;
 use phpbb\request\request_interface;
 use phpbb\user;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * OAuth authentication provider for phpBB3
@@ -38,6 +40,9 @@ class oauth extends base
 {
 	/** @var config */
 	protected $config;
+
+	/** @var controller_helper */
+	protected $controller_helper;
 
 	/** @var driver_interface */
 	protected $db;
@@ -82,6 +87,7 @@ class oauth extends base
 	 * Constructor.
 	 *
 	 * @param config				$config					Config object
+	 * @param controller_helper	$controller_helper	Controller helper object
 	 * @param driver_interface	$db						Database object
 	 * @param db			$db_auth				DB auth provider
 	 * @param dispatcher			$dispatcher				Event dispatcher object
@@ -98,6 +104,7 @@ class oauth extends base
 	 */
 	public function __construct(
 		config $config,
+		controller_helper $controller_helper,
 		driver_interface $db,
 		db $db_auth,
 		dispatcher $dispatcher,
@@ -114,6 +121,7 @@ class oauth extends base
 	)
 	{
 		$this->config				= $config;
+		$this->controller_helper	= $controller_helper;
 		$this->db					= $db;
 		$this->db_auth				= $db_auth;
 		$this->dispatcher			= $dispatcher;
@@ -161,7 +169,7 @@ class oauth extends base
 		}
 
 		// Request the name of the OAuth service
-		$provider = $this->request->variable('oauth_service', '', false);
+		$provider = $this->request->variable('oauth_service', '');
 		$service_name = $this->get_service_name($provider);
 
 		if ($provider === '' || !$this->service_providers->offsetExists($service_name))
@@ -175,7 +183,7 @@ class oauth extends base
 
 		// Get the service credentials for the given service
 		$storage = new token_storage($this->db, $this->user, $this->oauth_token_table, $this->oauth_state_table);
-		$query = 'mode=login&login=external&oauth_service=' . $provider;
+		$query = ['oauth_service' => $provider];
 
 		try
 		{
@@ -349,12 +357,12 @@ class oauth extends base
 
 			if ($credentials['key'] && $credentials['secret'])
 			{
-				$provider = $this->get_provider($service_name);
-				$redirect_url = generate_board_url() . '/ucp.' . $this->php_ext . '?mode=login&login=external&oauth_service=' . $provider;
+				$oauth_service = $this->get_provider($service_name);
 
 				$login_data['BLOCK_VARS'][$service_name] = [
-					'REDIRECT_URL'	=> redirect($redirect_url, true),
-					'SERVICE_NAME'	=> $this->get_provider_title($provider),
+					//'REDIRECT_URL'	=> redirect($redirect_url, true),
+					'LOGIN_URL'		=> $this->controller_helper->route('phpbb_ucp_oauth_login_controller', ['oauth_service' => $oauth_service]),
+					'SERVICE_NAME'	=> $this->get_provider_title($oauth_service),
 				];
 			}
 		}
@@ -712,7 +720,7 @@ class oauth extends base
 	 *
 	 * @param string			$provider		The name of the provider
 	 * @param token_storage		$storage		Token storage object
-	 * @param string			$query			The query string used for the redirect uri
+	 * @param array				$query			The query parameters used for the redirect uri
 	 * @return ServiceInterface
 	 * @throws exception						When OAuth service was not created
 	 */
@@ -726,7 +734,7 @@ class oauth extends base
 		/** @see \phpbb\auth\provider\oauth\service\service_interface::get_auth_scope */
 		$scopes = $this->service_providers[$service_name]->get_auth_scope();
 
-		$callback = generate_board_url() . "/ucp.{$this->php_ext}?{$query}";
+		$callback = generate_board_url(true) . $this->controller_helper->route('phpbb_ucp_oauth_link_controller', $query);
 
 		// Setup the credentials for the requests
 		$credentials = new Credentials(

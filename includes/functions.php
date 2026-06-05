@@ -1825,22 +1825,23 @@ function redirect($url, $return = false, $disable_cd_check = false)
 /**
  * Redirect to controller
  *
- * @param string $controller_name
+ * @param string $controller_name Controller name
+ * @param array $params Parameters for route generation
  * @return void
  */
-function phpbb_redirect_to_controller(string $controller_name)
+function phpbb_redirect_to_controller(string $controller_name, array $params)
 {
-	global $request, $phpbb_container;
+	global $phpbb_container;
 
+	/** @var \phpbb\controller\helper $controller_helper */
 	$controller_helper = $phpbb_container->get('controller.helper');
-	/* @var \Symfony\Component\HttpKernel\HttpKernel $http_kernel */
+	/** @var \Symfony\Component\HttpKernel\HttpKernel $http_kernel */
 	$http_kernel = $phpbb_container->get('http_kernel');
-	/* @var \phpbb\symfony_request $symfony_request */
+	/** @var \phpbb\symfony_request $symfony_request */
 	$symfony_request = $phpbb_container->get('symfony_request');
 
-	$get_params_array = $request->get_super_global(\phpbb\request\request_interface::GET);
 	$response = new \Symfony\Component\HttpFoundation\RedirectResponse(
-		$controller_helper->route($controller_name, $get_params_array, false),
+		$controller_helper->route($controller_name, $params, false),
 		\Symfony\Component\HttpFoundation\Response::HTTP_MOVED_PERMANENTLY
 	);
 	$response->send();

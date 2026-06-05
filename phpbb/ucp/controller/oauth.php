@@ -97,8 +97,10 @@ class oauth
 	 *
 	 * @return void
 	 */
-	public function authenticate()
+	public function authenticate(string $oauth_service)
 	{
+		$this->request->overwrite('oauth_service', $oauth_service);
+
 		$auth_provider = $this->auth_collection->get_provider();
 
 		// Check if auth provider supports linking
@@ -133,12 +135,91 @@ class oauth
 
 	public function login(string $oauth_service)
 	{
-		$username	= $this->request->variable('username', '', true);
-		$password	= $this->request->untrimmed_variable('password', '', true);
 		$this->request->overwrite('oauth_service', $oauth_service);
 
 		$provider = $this->auth_collection->get_provider();
-		$login = $provider->login($username, $password);
+		if (!$provider instanceof \phpbb\auth\provider\oauth\oauth)
+		{
+			// Handle differently once we move away from the shitty concept of having oauth as auth provider ...
+			throw new http_exception(Response::HTTP_UNAUTHORIZED, 'NOT_AUTHORISED');
+		}
+
+		$result = $provider->login('', '');
+
+		// The result parameter is always an array, holding the relevant information...
+		if ($result['status'] == LOGIN_SUCCESS)
+		{
+			$redirect = $this->request->variable('redirect', "{$this->phpbb_root_path}index.{$this->php_ext}");
+
+			/**
+			 * This event allows an extension to modify the redirection when a user successfully logs in
+			 *
+			 * @event core.oauth_login_redirect
+			 * @var  string	redirect	Redirect string
+			 * @var	bool	admin		Is admin?
+			 * @var	array	result		Result from auth provider
+			 * @since 3.3.17
+			 */
+			$vars = array('redirect', 'admin', 'result');
+			extract($this->dispatcher->trigger_event('core.oauth_login_redirect', compact($vars)));
+
+			$redirect = reapply_sid($redirect);
+
+			// Special case... the user is effectively banned, but we allow founders to login
+			if (defined('IN_CHECK_BAN') && $result['user_row']['user_type'] != USER_FOUNDER)
+			{
+				return;
+			}
+
+			redirect($redirect);
+		}
+
+		if ($result['status'] == LOGIN_BREAK)
+		{
+			trigger_error($result['error_msg']);
+		}
+
+		switch ($result['status'])
+		{
+			case LOGIN_ERROR_ATTEMPTS:
+				$captcha = $this->captcha_factory->get_instance($this->config['captcha_plugin']);
+				$captcha->init(CONFIRM_LOGIN);
+
+				$this->template->assign_vars(array(
+					'CAPTCHA_TEMPLATE'			=> $captcha->get_template(),
+				));
+			// no break;
+
+			// Username, password, etc...
+			default:
+				$error = $this->language->lang($result['error_msg']);
+
+				// Assign admin contact to some error messages
+				if ($result['error_msg'] == 'LOGIN_ERROR_USERNAME' || $result['error_msg'] == 'LOGIN_ERROR_PASSWORD')
+				{
+					$error = $this->language->lang(
+						$result['error_msg'],
+						'<a href="' . append_sid("{$this->phpbb_root_path}memberlist.{$this->php_ext}", 'mode=contactadmin') . '">', '</a>'
+					);
+				}
+
+			break;
+		}
+
+		/**
+		 * This event allows an extension to process when a user fails a login attempt
+		 *
+		 * @event core.oauth_login_failed
+		 * @var array   result      Login result data
+		 * @var string  username    User name used to login
+		 * @var string  password    Password used to login
+		 * @var string  error         Error message
+		 * @since 3.1.3-RC1
+		 */
+		$vars = array('result', 'username', 'password', 'error');
+		extract($this->dispatcher->trigger_event('core.oauth_login_failed', compact($vars)));
+
+		trigger_error($error);
 	}
 
 	/**

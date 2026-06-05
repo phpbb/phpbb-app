@@ -2,7 +2,7 @@ phpbb_ucp_delete_cookies_controller:
     path: /delete_cookies
     defaults: { _controller: phpbb.ucp.controller.delete_cookies:handle }
 
-phpbb_ucp_oauth_link_controller:
+phpbb_ucp_oauth_authenticate_controller:
     path: /oauth/authenticate/{oauth_service}
     defaults: { _controller: phpbb.ucp.controller.oauth:authenticate }
 

@@ -17,7 +17,6 @@ use OAuth\OAuth1\Token\StdOAuth1Token;
 use OAuth\Common\Token\TokenInterface;
 use OAuth\Common\Storage\TokenStorageInterface;
 use OAuth\Common\Storage\Exception\TokenNotFoundException;
-use OAuth\Common\Storage\Exception\AuthorizationStateNotFoundException;
 
 /**
  * OAuth storage wrapper for phpBB's cache

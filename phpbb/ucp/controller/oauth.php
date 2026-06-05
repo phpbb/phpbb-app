@@ -93,8 +93,9 @@ class oauth
 	}
 
 	/**
-	 * Handle linking of accounts via oauth
+	 * Handle oauth authentication requests
 	 *
+	 * @param string $oauth_service Oauth service to authenticate with
 	 * @return void
 	 */
 	public function authenticate(string $oauth_service)
@@ -153,6 +154,12 @@ class oauth
 		}
 	}
 
+	/**
+	 * Handle login requests for oauth
+	 *
+	 * @param string $oauth_service Oauth service to login with
+	 * @return void
+	 */
 	public function login(string $oauth_service)
 	{
 		$this->request->overwrite('oauth_service', $oauth_service);
@@ -243,7 +250,7 @@ class oauth
 	}
 
 	/**
-	 * Handle logging in via oauth
+	 * Handle linking accounts via Oauth
 	 *
 	 * @return Response
 	 */

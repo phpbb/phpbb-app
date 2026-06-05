@@ -736,7 +736,7 @@ class oauth extends base
 		/** @see \phpbb\auth\provider\oauth\service\service_interface::get_auth_scope */
 		$scopes = $this->service_providers[$service_name]->get_auth_scope();
 
-		$callback = generate_board_url(true) . $this->controller_helper->route('phpbb_ucp_oauth_link_controller', $query);
+		$callback = generate_board_url(true) . $this->controller_helper->route('phpbb_ucp_oauth_authenticate_controller', $query);
 
 		// Setup the credentials for the requests
 		$credentials = new Credentials(

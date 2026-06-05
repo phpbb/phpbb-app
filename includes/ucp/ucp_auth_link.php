@@ -53,7 +53,7 @@ class ucp_auth_link
 				];
 			}
 
-			phpbb_redirect_to_controller('phpbb_ucp_oauth_link_controller', $url_params);
+			phpbb_redirect_to_controller('phpbb_ucp_oauth_authenticate_controller', $url_params);
 		}
 
 		$error = array();

@@ -583,7 +583,7 @@ class oauth extends base
 		}
 
 		// Prepare for an authentication request
-		$query = 'mode=login_link&login_link_oauth_service=' . $link_data['oauth_service'];
+		$query = ['oauth_service' => $link_data['oauth_service']];
 
 		try
 		{
@@ -635,7 +635,9 @@ class oauth extends base
 	protected function link_account_auth_link(array $link_data, $service_name)
 	{
 		$storage = new token_storage($this->db, $this->user, $this->oauth_token_table, $this->oauth_state_table);
-		$query = 'i=ucp_auth_link&mode=auth_link&link=1&oauth_service=' . $link_data['oauth_service'];
+		$query = [
+			'oauth_service' => $link_data['oauth_service'],
+		];
 
 		try
 		{

@@ -110,11 +110,8 @@ class oauth
 			throw new http_exception(Response::HTTP_UNAUTHORIZED, 'UCP_AUTH_LINK_NOT_SUPPORTED');
 		}
 
-		// Link account if link is signaled, otherwise redirect to index
-		if ($this->request->variable('link', false))
+		if ($this->request->variable('link', false) || $this->user->data['is_registered'])
 		{
-			// In this case the link data should only be populated with the
-			// link_method as the provider dictates how data is returned to it.
 			$link_data = ['link_method' => 'auth_link'];
 
 			$error = $auth_provider->link_account($link_data);
@@ -125,11 +122,34 @@ class oauth
 			}
 
 			// Redirect to UCP page if there was no error linking the account
-			redirect(append_sid("{$this->phpbb_root_path}ucp.$this->php_ext?i=ucp_auth_link&mode=auth_link"));
+			if ($this->user->data['is_registered'])
+			{
+				redirect(append_sid("{$this->phpbb_root_path}ucp.$this->php_ext?i=ucp_auth_link&mode=auth_link"));
+			} else
+			{
+				$query_params = [
+					'login_link_oauth_service' => $this->request->variable('oauth_service', ''),
+				];
+				phpbb_redirect_to_controller('phpbb_ucp_oauth_link_account_controller', $query_params);
+			}
 		}
 		else
 		{
-			redirect(append_sid("{$this->phpbb_root_path}index.$this->php_ext"));
+			$url_params = [
+				'mode'			=> 'login',
+				'login'			=> 'external',
+				'oauth_service'	=> $this->request->variable('oauth_service', '')
+			];
+
+			if ($this->request->is_set('code'))
+			{
+				$url_params += [
+					'code'			=> $this->request->variable('code', ''),
+					'state'			=> $this->request->variable('state', ''),
+					'scope'			=> $this->request->variable('scope', ''),
+				];
+			}
+			redirect(append_sid("{$this->phpbb_root_path}ucp.$this->php_ext", $url_params));
 		}
 	}
 

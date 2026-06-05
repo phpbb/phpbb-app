@@ -40,8 +40,8 @@ class ucp_auth_link
 		if ($request->variable('link', false))
 		{
 			$url_params = [
-				'link'			=> $request->variable('link', false),
 				'oauth_service'	=> $request->variable('oauth_service', ''),
+				'link'			=> 1,
 			];
 
 			if ($request->is_set('code'))

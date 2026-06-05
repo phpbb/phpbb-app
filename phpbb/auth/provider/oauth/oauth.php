@@ -55,7 +55,7 @@ class oauth extends base
 	/** @var request_interface */
 	protected $request;
 
-	/** @var \phpbb\routing\helper */
+	/** @var routing_helper */
 	protected $routing_helper;
 
 	/** @var service_collection */

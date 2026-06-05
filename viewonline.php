@@ -415,7 +415,7 @@ foreach ($session_data_rowset as $row)
 		'USERNAME_FULL'		=> $username_full,
 		'LASTUPDATE'		=> $user->format_date($row['session_time']),
 		'FORUM_LOCATION'	=> $location,
-		'USER_IP'			=> ($auth->acl_get('a_')) ? (($mode == 'lookup' && $session_id == $row['session_id']) ? utf8_htmlspecialchars(gethostbyaddr($row['session_ip'])) : $row['session_ip']) : '',
+		'USER_IP'			=> ($auth->acl_get('a_')) ? (($mode == 'lookup' && $session_id == $row['session_id']) ? phpbb_get_host_for_ip($row['session_ip']) : $row['session_ip']) : '',
 		'USER_BROWSER'		=> ($auth->acl_get('a_user')) ? utf8_htmlspecialchars($row['session_browser']) : '',
 
 		'U_USER_PROFILE'	=> ($row['user_type'] != USER_IGNORE) ? get_username_string('profile', $row['user_id'], '') : '',

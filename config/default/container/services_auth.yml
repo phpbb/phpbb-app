@@ -53,12 +53,12 @@ services:
         class: phpbb\auth\provider\oauth\oauth
         arguments:
             - '@config'
-            - '@controller.helper'
             - '@dbal.conn'
             - '@auth.provider.db'
             - '@dispatcher'
             - '@language'
             - '@request'
+            - '@routing.helper'
             - '@auth.provider.oauth.service_collection'
             - '@user'
             - '%tables.auth_provider_oauth_token_storage%'

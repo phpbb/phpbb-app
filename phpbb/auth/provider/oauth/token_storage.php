@@ -207,6 +207,7 @@ class token_storage implements TokenStorageInterface
 			'provider'		=> $service,
 			'oauth_state'	=> $state,
 			'session_id'	=> $this->user->data['session_id'],
+			'state_time'	=> time(),
 		];
 
 		$sql = 'INSERT INTO ' . $this->oauth_state_table . ' ' . $this->db->sql_build_array('INSERT', $data);
@@ -253,14 +254,10 @@ class token_storage implements TokenStorageInterface
 		}
 
 		$data = [
-			'user_id'	=> (int) $this->user->data['user_id'],
-			'provider'	=> $service,
+			'user_id'		=> (int) $this->user->data['user_id'],
+			'provider'		=> $service,
+			'session_id'	=> $this->user->data['session_id'],
 		];
-
-		if ((int) $this->user->data['user_id'] === ANONYMOUS)
-		{
-			$data['session_id']	= $this->user->data['session_id'];
-		}
 
 		return $this->_retrieve_state($data);
 	}
@@ -520,10 +517,11 @@ class token_storage implements TokenStorageInterface
 	 */
 	protected function get_state_row(array $data)
 	{
-		$sql = 'SELECT oauth_state
+		$sql = 'SELECT oauth_state, state_time
 			FROM ' . $this->oauth_state_table . '
-			WHERE ' . $this->db->sql_build_array('SELECT', $data);
-		$result = $this->db->sql_query($sql);
+			WHERE ' . $this->db->sql_build_array('SELECT', $data) . '
+			ORDER BY state_time DESC';
+		$result = $this->db->sql_query_limit($sql, 1);
 		$row = $this->db->sql_fetchrow($result);
 		$this->db->sql_freeresult($result);
 

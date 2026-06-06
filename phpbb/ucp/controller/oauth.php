@@ -100,6 +100,8 @@ class oauth
 	 */
 	public function authenticate(string $oauth_service)
 	{
+		$this->language->add_lang('ucp');
+
 		$this->request->overwrite('oauth_service', $oauth_service);
 
 		$auth_provider = $this->auth_collection->get_provider();

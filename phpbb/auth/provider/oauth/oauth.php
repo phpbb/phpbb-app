@@ -170,8 +170,9 @@ class oauth extends base
 		// Request the name of the OAuth service
 		$provider = $this->request->variable('oauth_service', '');
 		$service_name = $this->get_service_name($provider);
+		$service_provider = $this->get_service_provider($service_name);
 
-		if ($provider === '' || !$this->service_providers->offsetExists($service_name))
+		if ($provider === '' || !$service_provider)
 		{
 			return [
 				'status'		=> LOGIN_ERROR_EXTERNAL_AUTH,
@@ -200,11 +201,11 @@ class oauth extends base
 
 		if ($this->is_set_code($service))
 		{
-			$this->service_providers[$service_name]->set_external_service_provider($service);
+			$service_provider->set_external_service_provider($service);
 
 			try
 			{
-				$unique_id = $this->service_providers[$service_name]->perform_auth_login();
+				$unique_id = $service_provider->perform_auth_login();
 			}
 			catch (exception $e)
 			{
@@ -728,10 +729,10 @@ class oauth extends base
 	{
 		$service_name = $this->get_service_name($provider);
 
-		/** @see \phpbb\auth\provider\oauth\service\service_interface::get_service_credentials */
+		/** @see service_interface::get_service_credentials */
 		$service_credentials = $this->service_providers[$service_name]->get_service_credentials();
 
-		/** @see \phpbb\auth\provider\oauth\service\service_interface::get_auth_scope */
+		/** @see service_interface::get_auth_scope */
 		$scopes = $this->service_providers[$service_name]->get_auth_scope();
 
 		$callback = generate_board_url(true) . $this->routing_helper->route('phpbb_ucp_oauth_authenticate_controller', $query);
@@ -789,6 +790,28 @@ class oauth extends base
 		}
 
 		return $provider;
+	}
+
+	/**
+	 * Get service provider for provider name
+	 *
+	 * @param string $provider
+	 * @return service_interface|null Service provider instance or null if not properly configured
+	 */
+	protected function get_service_provider(string $provider): ?service_interface
+	{
+		if ($this->service_providers->offsetExists($provider))
+		{
+			/** @var service_interface $service_provider */
+			$service_provider = $this->service_providers->offsetGet($provider);
+			$service_credentials = $service_provider->get_service_credentials();
+			if ($service_credentials['key'] && $service_credentials['secret'])
+			{
+				return $service_provider;
+			}
+		}
+
+		return null;
 	}
 
 	/**

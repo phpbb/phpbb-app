@@ -136,6 +136,7 @@ class oauth
 		}
 		else
 		{
+			// Redirect to login page to handle actual login process for oauth service
 			$url_params = [
 				'mode'			=> 'login',
 				'login'			=> 'external',

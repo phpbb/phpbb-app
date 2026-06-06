@@ -606,7 +606,7 @@ class attachment
 					}
 					else
 					{
-						$allowed = (bool)$this->config['secure_allow_deny'];
+						$allowed = (bool) $this->config['secure_allow_deny'];
 					}
 				}
 			}

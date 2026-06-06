@@ -391,7 +391,7 @@ class oauth
 	 *						returned. If the login was successful, then null is
 	 *						returned.
 	 */
-	protected function process_login_result(array $result): ?string
+	protected function process_login_result(array $result): string|null
 	{
 		$login_error = null;
 

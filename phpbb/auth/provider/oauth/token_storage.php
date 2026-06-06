@@ -475,7 +475,7 @@ class token_storage implements TokenStorageInterface
 	 * @param array $data		The SQL WHERE data
 	 * @return string				The OAuth state, or null if not stored
 	 */
-	protected function _retrieve_state(array $data): ?string
+	protected function _retrieve_state(array $data): string|null
 	{
 		$row = $this->get_state_row($data);
 

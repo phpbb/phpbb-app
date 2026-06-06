@@ -800,7 +800,7 @@ class oauth extends base
 	 * @param string $provider
 	 * @return service_interface|null Service provider instance or null if not properly configured
 	 */
-	protected function get_service_provider(string $provider): ?service_interface
+	protected function get_service_provider(string $provider): service_interface|null
 	{
 		if ($this->service_providers->offsetExists($provider))
 		{

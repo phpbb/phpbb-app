@@ -171,6 +171,9 @@ class oauth
 			throw new http_exception(Response::HTTP_UNAUTHORIZED, 'NOT_AUTHORISED');
 		}
 
+		// Skip any potential login with username and password by supplying empty values.
+		// Only oauth provider can reach this. Valid oauth login requests don't need a username and password and won't use it.
+		// Requests that are not valid oauth login requests will be rejected due to the empty password.
 		$result = $provider->login('', '');
 
 		// The result parameter is always an array, holding the relevant information...

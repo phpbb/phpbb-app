@@ -4469,3 +4469,14 @@ function phpbb_get_board_contact_link(\phpbb\config\config $config, $phpbb_root_
 		return 'mailto:' . htmlspecialchars($config['board_contact'], ENT_COMPAT);
 	}
 }
+
+/**
+ * Get host name for ip
+ *
+ * @param string $ip IP string
+ * @return string Hostname for IP in cleaned format
+ */
+function phpbb_get_host_for_ip(string $ip): string
+{
+	return utf8_htmlspecialchars(@gethostbyaddr($ip));
+}

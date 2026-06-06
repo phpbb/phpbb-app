@@ -52,6 +52,7 @@
 	<ul>
 		<li><a href="#v400a1">Changes since 4.0.0-a1</a></li>
 		<li><a href="#v33x">Changes since 3.3.x</a></li>
+		<li><a href="#v3316">Changes since 3.3.16</a></li>
 		<li><a href="#v3316rc1">Changes since 3.3.16-RC1</a></li>
 		<li><a href="#v3315">Changes since 3.3.15</a></li>
 		<li><a href="#v3315rc1">Changes since 3.3.15-RC1</a></li>
@@ -704,6 +705,30 @@
 				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17517">PHPBB-17517</a>] - Make proper use of eslint</li>
 				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17543">PHPBB-17543</a>] - Update composer and dependencies</li>
 				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17544">PHPBB-17544</a>] - Support Codespaces on master</li>
+			</ul>
+
+			<a name="v3316rc1"></a><h3>Changes since 3.3.16</h3>
+			<h4>Bug</h4>
+			<ul>
+				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17639">PHPBB-17639</a>] - Installation under PHP 8.4 failed with timeout detection reason check_filesystem.php</li>
+				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17650">PHPBB-17650</a>] - Migrator bug prevents complete uninstallation for certain extensions</li>
+				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17651">PHPBB-17651</a>] - Notification manager tests fail on mssql</li>
+				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17658">PHPBB-17658</a>] - Testing for 3.3.x is broken on PHP 8</li>
+			</ul>
+			<h4>Improvement</h4>
+			<ul>
+				<li>[<a href="https://tracker.phpbb.com/browse/PHPBB-17659">PHPBB-17659</a>] - Move oauth login to controllers</li>
+			</ul>
+			<h4>Hardening</h4>
+			<ul>
+				<li>[SECURITY-292] - Improve secure downloads referer checking</li>
+				<li>[SECURITY-295] - Hardening of hostname lookups</li>
+			</ul>
+			<h4>Security Issue</h4>
+			<ul>
+				<li>[SECURITY-293] - Improper state verification in OAuth implementation</li>
+				<li>[SECURITY-294] - Improper access verification when setting permissions in ACP</li>
+				<li>[SECURITY-296] - Ensure proper casting in profile field migration</li>
 			</ul>
 
 			<a name="v3316rc1"></a><h3>Changes since 3.3.16-RC1</h3>

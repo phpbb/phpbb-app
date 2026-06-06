@@ -512,7 +512,6 @@ class attachment
 
 	/**
 	 * Check if downloading item is allowed
-	 * FIXME (See: https://tracker.phpbb.com/browse/PHPBB3-15264 and http://area51.phpbb.com/phpBB/viewtopic.php?f=81&t=51921)
 	 */
 	protected function download_allowed(): bool
 	{
@@ -531,7 +530,7 @@ class attachment
 		// Split URL into domain and script part
 		$url = @parse_url($url);
 
-		if ($url === false)
+		if ($url === false || !isset($url['host']))
 		{
 			return (bool) $this->config['secure_allow_empty_referer'];
 		}
@@ -562,60 +561,57 @@ class attachment
 			$server_name = $this->config['server_name'];
 		}
 
-		if (preg_match('#^.*?' . preg_quote($server_name, '#') . '.*?$#i', $hostname))
+		if (preg_match('#(?:^|\\.)' . preg_quote($server_name, '#') . '$#i', $hostname))
 		{
-			$allowed = true;
+			return true;
 		}
 
 		// Get IP's and Hostnames
-		if (!$allowed)
+		$sql = 'SELECT site_ip, site_hostname, ip_exclude
+			FROM ' . SITELIST_TABLE;
+		$result = $this->db->sql_query($sql);
+
+		while ($row = $this->db->sql_fetchrow($result))
 		{
-			$sql = 'SELECT site_ip, site_hostname, ip_exclude
-				FROM ' . SITELIST_TABLE;
-			$result = $this->db->sql_query($sql);
+			$site_ip = trim($row['site_ip']);
+			$site_hostname = trim($row['site_hostname']);
 
-			while ($row = $this->db->sql_fetchrow($result))
+			if ($site_ip)
 			{
-				$site_ip = trim($row['site_ip']);
-				$site_hostname = trim($row['site_hostname']);
-
-				if ($site_ip)
+				foreach ($iplist as $ip)
 				{
-					foreach ($iplist as $ip)
-					{
-						if (preg_match('#^' . str_replace('\*', '.*?', preg_quote($site_ip, '#')) . '$#i', $ip))
-						{
-							if ($row['ip_exclude'])
-							{
-								$allowed = ($this->config['secure_allow_deny']) ? false : true;
-								break 2;
-							}
-							else
-							{
-								$allowed = ($this->config['secure_allow_deny']) ? true : false;
-							}
-						}
-					}
-				}
-
-				if ($site_hostname)
-				{
-					if (preg_match('#^' . str_replace('\*', '.*?', preg_quote($site_hostname, '#')) . '$#i', $hostname))
+					if (preg_match('#^' . str_replace('\*', '.*?', preg_quote($site_ip, '#')) . '$#i', $ip))
 					{
 						if ($row['ip_exclude'])
 						{
-							$allowed = ($this->config['secure_allow_deny']) ? false : true;
-							break;
+							$allowed = !$this->config['secure_allow_deny'];
+							break 2;
 						}
 						else
 						{
-							$allowed = ($this->config['secure_allow_deny']) ? true : false;
+							$allowed = (bool) $this->config['secure_allow_deny'];
 						}
 					}
 				}
 			}
-			$this->db->sql_freeresult($result);
+
+			if ($site_hostname)
+			{
+				if (preg_match('#^' . str_replace('\*', '.*?', preg_quote($site_hostname, '#')) . '$#i', $hostname))
+				{
+					if ($row['ip_exclude'])
+					{
+						$allowed = !$this->config['secure_allow_deny'];
+						break;
+					}
+					else
+					{
+						$allowed = (bool)$this->config['secure_allow_deny'];
+					}
+				}
+			}
 		}
+		$this->db->sql_freeresult($result);
 
 		return $allowed;
 	}

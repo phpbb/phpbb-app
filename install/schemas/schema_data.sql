@@ -229,6 +229,7 @@ INSERT INTO phpbb_config (config_name, config_value) VALUES ('min_post_chars', '
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('min_search_author_chars', '3');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('new_member_group_default', '0');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('new_member_post_limit', '3');
+INSERT INTO phpbb_config (config_name, config_value) VALUES ('oauth_states_last_gc', '0');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('override_user_style', '0');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('pass_complex', 'PASS_TYPE_ALPHA');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('plupload_salt', 'phpbb_plupload');
@@ -299,7 +300,7 @@ INSERT INTO phpbb_config (config_name, config_value) VALUES ('update_hashes_last
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('update_hashes_lock', '0');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('upload_icons_path', 'images/upload_icons');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('use_system_cron', '0');
-INSERT INTO phpbb_config (config_name, config_value) VALUES ('version', '4.0.0-a2');
+INSERT INTO phpbb_config (config_name, config_value) VALUES ('version', '4.0.0-a3-dev');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('warnings_expire_days', '90');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('warnings_gc', '14400');
 INSERT INTO phpbb_config (config_name, config_value) VALUES ('exts_composer_repositories', '["https://satis.phpbb.com/","https://www.phpbb.com/customise/db/composer/40/"]');

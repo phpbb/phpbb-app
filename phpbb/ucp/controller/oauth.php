@@ -15,11 +15,13 @@ namespace phpbb\ucp\controller;
 
 use phpbb\auth\provider_collection;
 use phpbb\captcha\factory;
+use phpbb\captcha\plugins\confirm_type;
 use phpbb\config\config;
 use phpbb\controller\helper;
 use phpbb\event\dispatcher;
 use phpbb\exception\http_exception;
 use phpbb\language\language;
+use phpbb\request\request;
 use phpbb\request\request_interface;
 use phpbb\template\template;
 use phpbb\user;
@@ -45,7 +47,7 @@ class oauth
 	/** @var language Language */
 	protected $language;
 
-	/** @var request_interface Request class instance */
+	/** @var request Request class instance */
 	protected $request;
 
 	/** @var template Template class */
@@ -69,14 +71,14 @@ class oauth
 	 * @param dispatcher $dispatcher
 	 * @param helper $helper
 	 * @param language $language
-	 * @param request_interface $request
+	 * @param request $request
 	 * @param template $template
 	 * @param user $user
 	 * @param string $phpbb_root_path
 	 * @param string $php_ext
 	 */
 	public function __construct(provider_collection $auth_collection, factory $captcha_factory, config $config,
-		dispatcher $dispatcher, helper $helper, language $language, request_interface $request, template $template,
+		dispatcher $dispatcher, helper $helper, language $language, request $request, template $template,
 		user $user, string $phpbb_root_path, string $php_ext)
 	{
 		$this->auth_collection = $auth_collection;
@@ -216,7 +218,7 @@ class oauth
 		{
 			case LOGIN_ERROR_ATTEMPTS:
 				$captcha = $this->captcha_factory->get_instance($this->config['captcha_plugin']);
-				$captcha->init(CONFIRM_LOGIN);
+				$captcha->init(confirm_type::LOGIN);
 
 				$this->template->assign_vars(array(
 					'CAPTCHA_TEMPLATE'			=> $captcha->get_template(),
@@ -344,7 +346,7 @@ class oauth
 		 *
 		 * @event core.ucp_login_link_template_after
 		 * @var	array							data				Login link data
-		 * @var	\phpbb\auth\provider_interface	auth_provider		Auth provider
+		 * @var	\phpbb\auth\provider\provider_interface	auth_provider		Auth provider
 		 * @var	string							login_link_error	Login link error
 		 * @var	string							login_error			Login error
 		 * @var	string							login_username		Login username
@@ -407,7 +409,7 @@ class oauth
 			{
 				case LOGIN_ERROR_ATTEMPTS:
 					$captcha = $this->captcha_factory->get_instance($this->config['captcha_plugin']);
-					$captcha->init(CONFIRM_LOGIN);
+					$captcha->init(confirm_type::LOGIN);
 
 					$this->template->assign_vars(array(
 						'CAPTCHA_TEMPLATE'			=> $captcha->get_template(),

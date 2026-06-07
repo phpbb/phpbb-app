@@ -473,15 +473,15 @@ class token_storage implements TokenStorageInterface
 	 * A helper function that performs the query for retrieve state functions.
 	 *
 	 * @param array $data		The SQL WHERE data
-	 * @return string				The OAuth state, or null if not stored
+	 * @return string				The OAuth state, or empty string if not stored
 	 */
-	protected function _retrieve_state(array $data): string|null
+	protected function _retrieve_state(array $data): string
 	{
 		$row = $this->get_state_row($data);
 
 		if (!$row)
 		{
-			return null;
+			return '';
 		}
 
 		$this->cachedState = $row['oauth_state'];

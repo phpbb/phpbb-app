@@ -14,6 +14,7 @@
 namespace phpbb\auth\provider\oauth\service;
 
 use OAuth\Common\Http\Exception\TokenResponseException;
+use OAuth\Common\Storage\Exception\AuthorizationStateNotFoundException;
 use OAuth\OAuth2\Service\Exception\InvalidAuthorizationStateException;
 
 /**
@@ -68,7 +69,7 @@ class bitly extends base
 				$this->request->variable('state', '')
 			);
 		}
-		catch (InvalidAuthorizationStateException|TokenResponseException $e)
+		catch (AuthorizationStateNotFoundException|InvalidAuthorizationStateException|TokenResponseException $e)
 		{
 			throw new exception('AUTH_PROVIDER_OAUTH_ERROR_REQUEST');
 		}

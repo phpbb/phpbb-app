@@ -13,6 +13,7 @@
 
 namespace phpbb\auth\provider\oauth;
 
+use OAuth\Common\Storage\Exception\AuthorizationStateNotFoundException;
 use OAuth\OAuth1\Token\StdOAuth1Token;
 use OAuth\Common\Token\TokenInterface;
 use OAuth\Common\Storage\TokenStorageInterface;
@@ -472,8 +473,9 @@ class token_storage implements TokenStorageInterface
 	/**
 	 * A helper function that performs the query for retrieve state functions.
 	 *
-	 * @param array $data		The SQL WHERE data
-	 * @return string				The OAuth state, or empty string if not stored
+	 * @param array $data The SQL WHERE data
+	 * @return string                The OAuth state, or empty string if not stored
+	 * @throws AuthorizationStateNotFoundException If state was not stored
 	 */
 	protected function _retrieve_state(array $data): string
 	{
@@ -481,7 +483,7 @@ class token_storage implements TokenStorageInterface
 
 		if (!$row)
 		{
-			return '';
+			throw new AuthorizationStateNotFoundException('State not stored');
 		}
 
 		$this->cachedState = $row['oauth_state'];

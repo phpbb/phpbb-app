@@ -69,17 +69,17 @@ class acp_extensions
 		$this->phpbb_container = $phpbb_container;
 		$this->php_ini = $this->phpbb_container->get('php_ini');
 		$this->phpbb_root_path = $phpbb_root_path;
+		$is_catalog_available = $phpbb_container->hasParameter('extensions.enable_catalog') && $phpbb_container->getParameter('extensions.enable_catalog') === true;
 
 		$this->user->add_lang(['install', 'acp/extensions', 'acp/modules', 'migrator']);
 
-		switch ($mode)
+		if ($mode === 'catalog' && $is_catalog_available)
 		{
-			case 'catalog':
-				$this->catalog_mode($id, $mode);
-			break;
-			default:
-				$this->main_mode($id, $mode);
-			break;
+			$this->catalog_mode($id, $mode);
+		}
+		else
+		{
+			$this->main_mode($id, $mode);
 		}
 	}
 

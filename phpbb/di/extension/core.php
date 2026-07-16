@@ -118,6 +118,18 @@ class core extends Extension
 			$container->setParameter('debug.' . $name, $value);
 		}
 
+		// Set the extensions options
+		foreach ($config['extensions'] as $name => $value)
+		{
+			// Skip verbose and debug options as they are already set above
+			if ($name === 'composer_verbose' || $name === 'composer_debug')
+			{
+				continue;
+			}
+
+			$container->setParameter('extensions.' . $name, $value);
+		}
+
 		// Set the log options
 		foreach ($config['session'] as $name => $value)
 		{

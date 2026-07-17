@@ -15,7 +15,7 @@ namespace phpbb\db\migration\data\v400;
 
 class extensions_catalog_auth extends \phpbb\db\migration\migration
 {
-	static public function depends_on(): array
+	public static function depends_on(): array
 	{
 		return [
 			'\phpbb\db\migration\data\v400\extensions_composer',

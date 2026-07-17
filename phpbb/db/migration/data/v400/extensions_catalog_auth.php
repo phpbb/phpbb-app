@@ -42,7 +42,7 @@ class extensions_catalog_auth extends \phpbb\db\migration\migration
 	public function update_module_auth(): void
 	{
 		$sql = 'UPDATE ' . $this->table_prefix . "modules
-			SET module_auth = 'acl_a_extensions && diparam__extensions.enable_catalog'
+			SET module_auth = 'acl_a_extensions && diparam_extensions.enable_catalog'
 			WHERE module_class = 'acp'
 				AND module_basename = 'acp_extensions'
 				AND module_mode = 'catalog'";

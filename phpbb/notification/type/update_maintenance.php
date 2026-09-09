@@ -34,7 +34,7 @@ class update_maintenance extends base
 	/**
 	* {@inheritdoc}
 	*/
-	static public function get_item_id($type_data)
+	public static function get_item_id($type_data)
 	{
 		return isset($type_data['item_id']) ? (int) $type_data['item_id'] : 0;
 	}
@@ -42,7 +42,7 @@ class update_maintenance extends base
 	/**
 	* {@inheritdoc}
 	*/
-	static public function get_item_parent_id($type_data)
+	public static function get_item_parent_id($type_data)
 	{
 		return 0;
 	}

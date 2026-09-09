@@ -79,9 +79,7 @@ class update_maintenance extends base
 
 		$users = array_unique($users);
 
-		return $this->check_user_notification_options($users, array_merge($options, [
-			'item_id' => static::get_item_id($type_data),
-		]));
+		return $this->check_user_notification_options($users, $options);
 	}
 
 	/**

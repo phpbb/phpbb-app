@@ -887,7 +887,7 @@ class acp_groups
 				 * @event core.acp_manage_group_action_options_before
 				 * @var	int		group_id	The current group ID.
 				 * @var array	options		An array of HTML for the action select element.
-				 * @since 3.3.16-b3
+				 * @since 3.3.18-RC1
 				 */
 				$vars = array(
 					'group_id',
@@ -961,7 +961,7 @@ class acp_groups
 				 * @event core.acp_manage_group_default_action
 				 * @var	string	action				The current action.
 				 * @var	int		group_id			The current group ID.
-				 * @since 3.3.16-b3
+				 * @since 3.3.18-RC1
 				 */
 				$vars = array(
 					'action',
